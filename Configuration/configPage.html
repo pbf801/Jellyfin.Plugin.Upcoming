@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Jellyfin Upcoming</title>
+</head>
+
+<body>
+    <div id="UpcomingConfigPage"
+         data-role="page"
+         class="page type-interior pluginConfigurationPage">
+
+        <div data-role="content">
+            <div class="content-primary">
+
+                <form id="UpcomingConfigForm">
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused"
+                               for="DefaultCountdown">
+                            Cuenta atrás
+                        </label>
+
+                        <select id="DefaultCountdown"
+                                name="DefaultCountdown"
+                                class="emby-select">
+                            <option value="true">Activada</option>
+                            <option value="false">Desactivada</option>
+                        </select>
+
+                        <div class="fieldDescription">
+                            Mostrar una cuenta atrás por defecto en los contenidos
+                            marcados como próximamente.
+                        </div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="DefaultBlockPlayback"
+                                   type="checkbox"
+                                   is="emby-checkbox"
+                                   checked>
+                            <span>Bloquear reproducción por defecto</span>
+                        </label>
+
+                        <div class="fieldDescription">
+                            Impide reproducir un contenido mientras esté marcado
+                            como próximamente.
+                        </div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="ShowUpcomingSection"
+                                   type="checkbox"
+                                   is="emby-checkbox"
+                                   checked>
+                            <span>Mostrar sección "Próximamente"</span>
+                        </label>
+
+                        <div class="fieldDescription">
+                            Permite mostrar los contenidos Upcoming en la sección
+                            correspondiente.
+                        </div>
+                    </div>
+
+                    <div>
+                        <button is="emby-button"
+                                type="submit"
+                                class="raised button-submit">
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var UpcomingConfig = {
+            pluginUniqueId: '6d8c0b3d-0e54-4c1a-91d2-4c0b2d6a8a71'
+        };
+
+        document
+            .querySelector('#UpcomingConfigPage')
+            .addEventListener('viewshow', function () {
+
+                ApiClient.getPluginConfiguration(
+                    UpcomingConfig.pluginUniqueId
+                ).then(function (config) {
+
+                    document.querySelector(
+                        '#DefaultCountdown'
+                    ).value =
+                        config.DefaultCountdown !== false
+                            ? 'true'
+                            : 'false';
+
+                    document.querySelector(
+                        '#DefaultBlockPlayback'
+                    ).checked =
+                        config.DefaultBlockPlayback !== false;
+
+                    document.querySelector(
+                        '#ShowUpcomingSection'
+                    ).checked =
+                        config.ShowUpcomingSection !== false;
+                });
+            });
+
+        document
+            .querySelector('#UpcomingConfigForm')
+            .addEventListener('submit', function (e) {
+
+                e.preventDefault();
+
+                ApiClient.getPluginConfiguration(
+                    UpcomingConfig.pluginUniqueId
+                ).then(function (config) {
+
+                    config.DefaultCountdown =
+                        document.querySelector(
+                            '#DefaultCountdown'
+                        ).value === 'true';
+
+                    config.DefaultBlockPlayback =
+                        document.querySelector(
+                            '#DefaultBlockPlayback'
+                        ).checked;
+
+                    config.ShowUpcomingSection =
+                        document.querySelector(
+                            '#ShowUpcomingSection'
+                        ).checked;
+
+                    ApiClient.updatePluginConfiguration(
+                        UpcomingConfig.pluginUniqueId,
+                        config
+                    ).then(function () {
+
+                        Dashboard.processPluginConfigurationUpdateResult();
+                    });
+                });
+            });
+    </script>
+</body>
+</html>
